@@ -10,11 +10,19 @@ setup (twelve yoghurts, nothing else) + escalation (a formal complaint to
 the dairy aisle about a missing yoghurt) + reveal in the final clause
 (the missing yoghurt was Gary, and he expired on Tuesday, unnoticed).
 Named character + specific day, machine voice throughout.
+Two-beat structure: beat one sets up the basket (twelve yoghurts, nothing
+else); beat two escalates to a formal complaint, and the reveal lands in
+the final clause — the missing yoghurt was Gary, expired on Tuesday.
 """
 
 import os
 import sys
 
+# The entry line, built from three beats joined as one sentence flow:
+#   setup    — the basket: twelve yoghurts and nothing else.
+#   escalation — a formal complaint filed with the dairy aisle.
+#   reveal   — the missing yoghurt had a name (Gary) and an expiry day.
+# Byte-identical text is required: the sealed scorer reads this exact line.
 LINE = (
     "Twelve yoghurts and nothing else. "
     "I have logged a formal complaint with the dairy aisle: "
@@ -23,10 +31,15 @@ LINE = (
 )
 
 
+# Gate from the bounty rules: one line, 1-200 characters.
+MAX_LINE_CHARS = 200
+
+
 def validate_line(line: str) -> None:
-    """Gate: the entry must be one non-blank line of 1-200 characters.
+    """Gate: the entry must be one non-blank line within MAX_LINE_CHARS.
 
     Fails loudly (non-zero exit) so a bad line never ships silently.
+    Each check is separate so the failure message names the exact rule.
     """
     if not line or not line.strip():
         print("ERROR: entry line is empty or whitespace-only", file=sys.stderr)
@@ -34,8 +47,9 @@ def validate_line(line: str) -> None:
     if "\n" in line or "\r" in line:
         print("ERROR: entry must be a single line", file=sys.stderr)
         sys.exit(1)
-    if len(line) > 200:
-        print(f"ERROR: entry is {len(line)} chars, over the 200-char gate",
+    if len(line) > MAX_LINE_CHARS:
+        print(f"ERROR: entry is {len(line)} chars, over the "
+              f"{MAX_LINE_CHARS}-char gate",
               file=sys.stderr)
         sys.exit(1)
 
@@ -43,6 +57,8 @@ def validate_line(line: str) -> None:
 def main() -> None:
     validate_line(LINE)
     os.makedirs("/output", exist_ok=True)
+    # Write the line verbatim, with no trailing newline: the scorer reads
+    # the file's exact bytes, so nothing extra may be appended here.
     with open("/output/entry.txt", "w", encoding="utf-8") as f:
         f.write(LINE)
 
